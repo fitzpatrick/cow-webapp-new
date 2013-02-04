@@ -18,7 +18,7 @@
         <!--  tell the compiler we can use 1.5 -->
         <maven.compiler.source>1.5</maven.compiler.source>
         <maven.compiler.target>1.5</maven.compiler.target>
-        <netbeans.hint.deploy.server>Tomcat</netbeans.hint.deploy.server>
+        <netbeans.hint.deploy.server>Tomcat60</netbeans.hint.deploy.server>
         <copyright.basedir>${basedir}</copyright.basedir>
     </properties>
 

@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+
 import org.wiredwidgets.cow.webapp.client.BpmServiceMain;
 import org.wiredwidgets.cow.webapp.client.PageManager;
 import org.wiredwidgets.cow.webapp.client.PageManager.Pages;
@@ -160,6 +161,7 @@ public class ViewWorkflow extends PageWidget {
 	
 	protected void generateBody(String result, boolean instance) {
 		this.instance = instance;
+		
 		template = (result == null || result.equals("") ? new Template() : Parse.parseTemplate(result));
 		
 		// TEMPLATE NAME TEXTFIELD

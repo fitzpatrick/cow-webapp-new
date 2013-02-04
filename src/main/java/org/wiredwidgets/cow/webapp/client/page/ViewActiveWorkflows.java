@@ -17,33 +17,28 @@
 package org.wiredwidgets.cow.webapp.client.page;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.wiredwidgets.cow.webapp.client.BpmServiceMain;
 import org.wiredwidgets.cow.webapp.client.PageManager;
 import org.wiredwidgets.cow.webapp.client.PageManager.Pages;
+import org.wiredwidgets.cow.webapp.client.bpm.Activities;
 import org.wiredwidgets.cow.webapp.client.bpm.Activity;
-import org.wiredwidgets.cow.webapp.client.bpm.BaseList;
 import org.wiredwidgets.cow.webapp.client.bpm.Decision;
 import org.wiredwidgets.cow.webapp.client.bpm.Loop;
+import org.wiredwidgets.cow.webapp.client.bpm.Option;
 import org.wiredwidgets.cow.webapp.client.bpm.Parse;
 import org.wiredwidgets.cow.webapp.client.bpm.Task;
 import org.wiredwidgets.cow.webapp.client.bpm.Template;
-import org.wiredwidgets.cow.webapp.client.components.CustomListGrid;
 
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.smartgwt.client.types.Alignment;
-import com.smartgwt.client.types.ListGridFieldType;
+import com.smartgwt.client.data.RecordList;
 import com.smartgwt.client.types.SortDirection;
-import com.smartgwt.client.util.BooleanCallback;
 import com.smartgwt.client.util.SC;
 import com.smartgwt.client.widgets.Label;
-import com.smartgwt.client.widgets.events.ClickEvent;
-import com.smartgwt.client.widgets.events.ClickHandler;
 import com.smartgwt.client.widgets.grid.CellFormatter;
 import com.smartgwt.client.widgets.grid.ListGrid;
 import com.smartgwt.client.widgets.grid.ListGridField;
@@ -52,26 +47,18 @@ import com.smartgwt.client.widgets.grid.events.CellClickEvent;
 import com.smartgwt.client.widgets.grid.events.CellClickHandler;
 import com.smartgwt.client.widgets.grid.events.CellDoubleClickEvent;
 import com.smartgwt.client.widgets.grid.events.CellDoubleClickHandler;
-import com.smartgwt.client.widgets.layout.LayoutSpacer;
-import com.smartgwt.client.widgets.layout.VLayout;
-import com.smartgwt.client.widgets.tree.Tree;
-import com.smartgwt.client.widgets.tree.TreeNode;
 
 public class ViewActiveWorkflows extends PageWidget {
 	HashMap<String, String> map;
 
 	public ViewActiveWorkflows() {
-		map = new HashMap<String, String>();
-		BpmServiceMain.sendGet("/processInstances/active", new AsyncCallback<String>() {
+			BpmServiceMain.sendGet("/processInstances/active", new AsyncCallback<String>() {
 			public void onFailure(Throwable arg0) {
 				createPage(new Label("Couldn't access list of active workflows"), PageWidget.PAGE_VIEWACTIVEWORKFLOWS);
 			}
 			public void onSuccess(String arg0) {
 				ArrayList<String> names = Parse.parseTemplateInstances(arg0);
 				ArrayList<String> ids = Parse.parseTemplateInstancesIds(arg0);
-				for(int i = 0; i < names.size(); i++) {
-					map.put(names.get(i), ids.get(i));
-				}
 				generateBody(names);
 			}
 		});
@@ -81,25 +68,25 @@ public class ViewActiveWorkflows extends PageWidget {
 		if(names.size() == 0) {
 			createPage(new Label("No active workflows"), PageWidget.PAGE_VIEWACTIVEWORKFLOWS);
 		} else {
-			
+			final ArrayList<String> statusList = new ArrayList<String>(Arrays.asList("precluded", "completed", "contingent", "planned", "notStarted", "open"));
 			final ListGrid grid = new ListGrid(){
-				@Override  
-	            protected String getBaseStyle(ListGridRecord record, int rowNum, int colNum) {  
-	                if (getFieldName(colNum).equals("id")) {  
-	                	ListGridRecord r =  record;  
-	                    if (r.getAttribute("id").startsWith("a")) {  
-	                        return "completed";  
-	                    } else if (r.getAttribute("id").startsWith("TST")) {  
-	                        return "open";  
-	                    } else {  
-	                        return super.getBaseStyle(record, rowNum, colNum);  
-	                    }  
-	                } else {  
-	                    return super.getBaseStyle(record, rowNum, colNum);  
-	                }  
-	            } 
+				protected String getBaseStyle(ListGridRecord record, int rowNum, int colNum) {
+					String value = record.getAttribute(this.getFields()[colNum].getName());
+					
+					if (colNum == 0){
+						return "linkLabel";
+					}
+					if (statusList.contains(value)){
+						return value;
+					}					
+	                return super.getBaseStyle(record, rowNum, colNum);
+	            }
 				
 			};
+			
+			
+			
+
 			grid.setWidth100();
 			grid.setHeight100();
 			grid.setShowFilterEditor(true);
@@ -119,7 +106,6 @@ public class ViewActiveWorkflows extends PageWidget {
 				public void onCellClick(CellClickEvent event) {
 					if(event.getColNum() == 0) {
 						Object[] args= {event.getRecord().getAttribute("id"),true};
-						SC.ask(event.getRecord().toString(),null);
 						PageManager.getInstance().setPageHistory(Pages.VIEWWORKFLOW, args );
 					}
 					
@@ -127,19 +113,30 @@ public class ViewActiveWorkflows extends PageWidget {
 				
 				}
 			});
-			ListGridField id = new ListGridField("id", "ID");   
+			
+			CellFormatter formatter = new CellFormatter() {
+	        	public String format(Object value, ListGridRecord record, int rowNum, int colNum) {
+					if(value == null) return "";
+					String s = value.toString();
+					if (statusList.contains(s)){
+						return "";
+					}
+					return s;
+				}
+
+		
+			};
+			
+			grid.setCellFormatter(formatter);
+			final ListGridField id = new ListGridField("id", "ID");   
 	        id.setCellFormatter(new CellFormatter() {  
 	            public String format(Object value, ListGridRecord record, int rowNum, int colNum) {  
 	            	return value.toString(); 
 	            }  
 	        });
-	        ListGridField am = new ListGridField("AM", "AM"); 
-	        ListGridField dac = new ListGridField("DAC", "DAC"); 
-	        ListGridField doc = new ListGridField("DOC", "DOC"); 
-	        ListGridField dt = new ListGridField("DT", "DT"); 
-	        ListGridField sido = new ListGridField("SIDO", "SIDO"); 
 	        
-			grid.setFields(new ListGridField("activeWorkflow", "Active Workflow"), id,am,dac,doc,dt,sido);
+	        
+			
 			
 			BpmServiceMain.sendGet("/processInstances/active", new AsyncCallback<String>() {
 				public void onFailure(Throwable arg0) {
@@ -148,11 +145,19 @@ public class ViewActiveWorkflows extends PageWidget {
 					
 					ArrayList<String> names = Parse.parseTemplateInstances(arg0);
 					ArrayList<String> ids = Parse.parseTemplateInstancesIds(arg0);
-					ListGridRecord[] records = new ListGridRecord[names.size()];
+					ListGridRecord[] rs = new ListGridRecord[names.size()];
+					Set<ListGridField> gridfields = new HashSet<ListGridField>();
+					gridfields.add(new ListGridField("activeWorkflow", "Active Workflow"));
+					gridfields.add(id);
+					grid.setFields(gridfields.toArray(new ListGridField[gridfields.size()]));
 					for(int i = 0; i < names.size(); i++) {
-						records[i] = new ListGridRecord();
-						records[i].setAttribute("activeWorkflow", names.get(i));
-						records[i].setAttribute("id", ids.get(i));
+						rs[i] = new ListGridRecord();
+					}
+					grid.setData(rs);
+					for(int i = 0; i < names.size(); i++) {
+						rs[i].setAttribute("activeWorkflow", names.get(i));
+						rs[i].setAttribute("id", ids.get(i));
+						
 						//
 						BpmServiceMain.sendGet("/processInstances/active/" + BpmServiceMain.urlEncode(ids.get(i)) + "/status", new AsyncCallback<String>() {
 							public void onFailure(Throwable caught) {
@@ -160,53 +165,109 @@ public class ViewActiveWorkflows extends PageWidget {
 							}
 							public void onSuccess(String result) {
 								
-								Template template = (result == null || result.equals("") ? new Template() : Parse.parseTemplate(result));
 								
-								ListGridRecord[] rs = grid.getRecords();
-								for(int x = 0;x <rs.length; x++){
+								Template template = (result == null || result.equals("") ? new Template() : Parse.parseTemplate(result));
+
+								
+								RecordList rs = grid.getDataAsRecordList();
+								//For every Record
+								for(int x = 0;x <rs.getLength(); x++){
 									ArrayList<Activity> acts = template.getBase().getActivities();
+									if (rs.get(x).getAttribute("id") == template.getName()){
+										updateGrid(rs,x,acts);
 									
-									if (rs[x].getAttribute("id").startsWith(template.getKey())){
-										
-										String attr = null;
-										String n = null;
-										for(int j = 0; j < acts.size(); j++){
-											Object act = acts.get(j);
-											if(act instanceof Task) {
-												Task t = (Task)act;										
-												attr = t.get("assignee");
-												n = t.getName();
-												
-
-											} else if(act instanceof Loop) {
-												Loop l = (Loop)act;
-												attr = l.getLoopTask().get("assignee");
-												n = l.getName();
-
-
-											} else if(act instanceof Decision) {
-												Decision d = (Decision)act;
-												attr = d.getTask().get("assignee");
-												n = d.getName();
-											}
-										}
-										if (attr != null){
-											rs[x].setAttribute(attr, n);
-											
-											break;
-										}
-										
 									}
 								}
+							
 								
-							grid.setData(rs);	
+								
+								
+								
+								
+								
+							}
+							private void updateGrid(RecordList rs, int x,
+									ArrayList<Activity> acts) {
+								String attr = null;
+								String n = null;
+								//For every activity in that record
+								
+								for(int j = 0; j < acts.size(); j++){
+									Object act = acts.get(j);
+									
+									
+									
+									if(act instanceof Task) {
+										Task t = (Task)act;										
+										attr = t.get("assignee");
+										//n = t.getName();
+										n = t.getCompletion();
+										
+										
+
+									} else if(act instanceof Loop) {
+										Loop l = (Loop)act;
+										attr = l.getLoopTask().get("assignee");
+										n = l.getCompletion();
+										updateGrid(rs,x,l.getActivities().getActivities());
+
+
+									} else if(act instanceof Decision) {
+										Decision d = (Decision)act;
+										attr = d.getTask().get("assignee");
+										//n = d.getCompletion(); (This would be consistent with stoplight)
+										n = d.getTask().getCompletion();
+										ArrayList<Option> opts = d.getOptions();
+										for (Option op : opts){
+											updateGrid(rs,x, op.getActivities().getActivities());
+										}
+									}
+									 else if(act instanceof Activities) {
+										 updateGrid(rs,x,((Activities) act).getActivities());
+									 }
+								if (attr != null){
+										ListGridField[] oldFields = grid.getFields();
+										boolean exists = false;
+										//Check if field exists
+										for (ListGridField f: oldFields){
+											if (f.getName() == attr){
+												exists = true;
+												break;
+											}
+										}
+										//If it doesn't exist, create it.
+										if (!exists){
+											Set<ListGridField> gridFields = new HashSet<ListGridField>(Arrays.asList(oldFields));
+											ListGridField newField = new ListGridField(attr, attr);
+											gridFields.add(newField);
+											grid.setFields(gridFields.toArray(new ListGridField[gridFields.size()]));
+											
+										}
+										String status = getCellStatus(rs.get(x).getAttribute(attr), n);
+										rs.get(x).setAttribute(attr, status);
+										grid.refreshFields();
+										
+									
+									//break;
+								}
+								}
+								
+							}
+							private String getCellStatus(String newStatus,
+									String currentStatus) {
+								if (statusList.indexOf(currentStatus) > statusList.indexOf(newStatus)){
+									newStatus = currentStatus;
+								}
+								
+	
+								return newStatus;
 							}
 						});
 						//
 						
 						
 					}
-					grid.setData(records);
+					grid.setFields((ListGridField[]) gridfields.toArray());
 					grid.sort(2, SortDirection.ASCENDING);
 					
 				}
@@ -215,27 +276,7 @@ public class ViewActiveWorkflows extends PageWidget {
 			
 			createPage(grid, PageWidget.PAGE_VIEWACTIVEWORKFLOWS);}
 		}
-			/*
-			VLayout layout = new VLayout();
-			layout.setHeight100();
-			layout.setWidth100();
-			for(int i = 0; i < names.size(); i++) {
-				Label l = new Label(names.get(i));
-				l.setStyleName("linkLabel");
-				l.addClickHandler(new ClickHandler() {
-					public void onClick(ClickEvent event) {
-						Object[] args= {map.get(((Label)event.getSource()).getTitle()), true};
-						PageManager.getInstance().setPageHistory(Pages.VIEWWORKFLOW, args );
-					}
-				});
-				layout.addMember(l);
-			}
-			LayoutSpacer spacer = new LayoutSpacer();
-			spacer.setHeight100();
-			layout.addMember(spacer);
-			createPage(layout, PageWidget.PAGE_VIEWACTIVEWORKFLOWS);
-		}
-	}*/
+
 
 	public void refresh() {
 		PageManager.getInstance().setPageHistory(Pages.VIEWACTIVEWORKFLOWS,null);

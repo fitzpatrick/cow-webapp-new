@@ -1138,7 +1138,6 @@ public class EditWorkflow extends PageWidget {
 				String xml = template.toString();
 				xml = xml.replaceAll("<", "&lt;");
 				xml = xml.replaceAll(">", "&gt;");
-				SC.say(xml);
 			}
 		});
 

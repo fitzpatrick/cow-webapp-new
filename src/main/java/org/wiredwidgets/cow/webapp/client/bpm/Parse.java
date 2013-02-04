@@ -26,6 +26,7 @@ import org.wiredwidgets.cow.webapp.client.BpmServiceMain;
 
 import com.gwt.components.client.xml.Document;
 import com.gwt.components.client.xml.Node;
+import com.smartgwt.client.util.SC;
 
 /**
  * A set of static methods used for parsing XML data
@@ -36,7 +37,43 @@ public class Parse {
 	public static Template parseTemplate(String s) {
 		s = clean(s);		
 		Document doc = Document.xmlParse(s);
-		Node process = (Node)doc.getChildren().get(0);
+		ArrayList<Node> children = doc.getChildren();
+		Node first = children.get(0);
+		Node process = null;
+		String cname = first.getName();
+		Template t = new Template();
+		if (cname.endsWith(("process"))){
+			process = first;
+			t.setName(getAttributeValue(process, "name"));
+		}
+		else if (cname.endsWith(("processInstance"))){
+			ArrayList<Node> nodes = first.getChildNodes();
+			process = nodes.get(6);
+			String processInstanceName = ((Node)nodes.get(5).getChildNodes().get(0)).getValue();
+			t.setName(processInstanceName);
+		}
+		
+		
+		
+		t.setKey(getAttributeValue(process, "key"));
+		ArrayList<Node> nodes = ((ArrayList<Node>)process.getChildNodes());
+		for(int i = 0; i < nodes.size(); i++) {
+			String name = nodes.get(i).getName();
+			if(name.split(":").length > 1)
+				name = name.split(":")[1];
+			if(name.equals("activities"))
+				t.setBase((BaseList)parseActivity(nodes.get(i), true));
+		}
+		return t;
+	}
+	
+	
+	
+	public static Template parseTemplateNew(String s) {
+		s = clean(s);		
+		Document doc = Document.xmlParse(s);
+		
+		Node process = (Node)((Document) doc.getChildren().get(0)).getChildren().get(6);
 		Template t = new Template();
 		t.setName(getAttributeValue(process, "name"));
 		t.setKey(getAttributeValue(process, "key"));
@@ -51,14 +88,29 @@ public class Parse {
 		return t;
 	}
 	
+	
+	
 	public static Map<String, String> parseTemplateCompletion(String s) {
 		s = clean(s);		
 		Document doc = Document.xmlParse(s);
-		Node process = (Node)doc.getChildren().get(0);
+		ArrayList<Node> children = doc.getChildren();
+		Node first = children.get(0);
+		Node process = null;
+		String cname = first.getName();
+		if (cname.endsWith(("process"))){
+			process = first;
+		}
+		else if (cname.endsWith(("processInstance"))){
+			ArrayList<Node> nodes = first.getChildNodes();
+			process = nodes.get(6);
+		}
 		Map<String, String> map = new HashMap<String, String>();
 		parseNodeCompletion((Node)(process.getChildNodes().get(0)), map);
 		return map;
 	}
+	
+	
+	
 	
 	protected static void parseNodeCompletion(Node node, Map<String, String> map) {
 		String completion = parseCompletionState(node);

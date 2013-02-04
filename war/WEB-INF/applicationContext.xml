@@ -41,6 +41,7 @@
     <bean id="restTemplate" class="org.springframework.web.client.RestTemplate"/>
 
     <bean id="bpmService" class="org.wiredwidgets.cow.webapp.server.BpmServiceImpl">
-        <property name="baseURL" value="http://scout3:8080/cow-server" />
+        <property name="baseURL" value="http://scout3:8080/cow-server-new" />
+        <!--  property name="baseURL" value="http://scout:8080/cow-server" /-->
     </bean>
 </beans>

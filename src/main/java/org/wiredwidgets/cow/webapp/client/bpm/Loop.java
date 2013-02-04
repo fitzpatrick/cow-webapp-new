@@ -106,6 +106,9 @@ public class Loop extends Activity {
 	public void setActivities(Activities a) {
 		activities = a;
 	}
+	public Activities getActivities() {
+		return activities;
+	}
 	
 	public void removeActivity(Activity a) {
 		activities.removeActivity(a);

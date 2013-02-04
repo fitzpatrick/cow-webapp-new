@@ -17,6 +17,8 @@
 package org.wiredwidgets.cow.webapp.client.components;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.wiredwidgets.cow.webapp.client.BpmServiceMain;
@@ -42,6 +44,12 @@ import com.smartgwt.client.widgets.Canvas;
 import com.smartgwt.client.widgets.IButton;
 import com.smartgwt.client.widgets.events.ClickEvent;
 import com.smartgwt.client.widgets.events.ClickHandler;
+import com.smartgwt.client.widgets.form.DynamicForm;
+import com.smartgwt.client.widgets.form.fields.FormItem;
+import com.smartgwt.client.widgets.form.fields.RadioGroupItem;
+import com.smartgwt.client.widgets.form.fields.SelectItem;
+import com.smartgwt.client.widgets.form.fields.events.ChangedEvent;
+import com.smartgwt.client.widgets.form.fields.events.ChangedHandler;
 import com.smartgwt.client.widgets.grid.CellFormatter;
 import com.smartgwt.client.widgets.grid.ListGrid;
 import com.smartgwt.client.widgets.grid.ListGridField;
@@ -77,9 +85,12 @@ public class MyTasksListGrid extends ListGrid {
 	 */
 	public Canvas getExpansionComponent(final ListGridRecord record) {
         final ListGrid grid = this;  
+        final ArrayList<String> outcomeString = new ArrayList<String>();
+        outcomeString.add("");
         
         VLayout layout = new VLayout(5);  
         layout.setPadding(5); 
+        HLayout hlayoutUpper = new HLayout();
         
 
         final ListGrid taskGrid = new ListGrid(){
@@ -154,8 +165,7 @@ public class MyTasksListGrid extends ListGrid {
         
         	lgr.setAttribute("varname", s);
         	lgr.setAttribute("value", record.getAttribute(s));
-        	//TODO Add required attribute
-        	lgr.setAttribute("required",((Boolean)(s.charAt(0) < 'p')));
+            lgr.setAttribute("required",((Boolean)(s.charAt(0) < 'p')));
         	records[count] = lgr;
         	
 
@@ -173,6 +183,7 @@ public class MyTasksListGrid extends ListGrid {
         saveButton.setTop(250);  
         saveButton.addClickHandler(new ClickHandler() {  
             public void onClick(ClickEvent event) {  
+            	
             	taskGrid.saveAllEdits(); 
             	//TODO currently can only SAVE Variables back to server when completing - so that is what this does
             	String varString = "";
@@ -185,21 +196,27 @@ public class MyTasksListGrid extends ListGrid {
             			varString += "&var=" + BpmServiceMain.urlEncode(var+ ":"+rec.getAttribute("value"));
             		}
             	}
-            	varString = varString.replaceFirst("&", "?");
-            	String outcomeString = "";
-        		final String tempString = record.getAttribute("id") + outcomeString + varString;
+            	
+            	
+            	
+            	
+        		
+        		Task t = (Task)record.getAttributeAsObject("task");     
+        		if (t.getOutcomes().size() > 0){
+        			if (!(outcomeString.get(0).startsWith("?"))){
+        				SC.say("Error. Please make your decision.");
+        				return;
+        			}
+        		}
+        		if(outcomeString.get(0).equals(""))
+        			varString = varString.replaceFirst("&", "?");
+        		final String tempString = record.getAttribute("id") + outcomeString.get(0) + varString;
         		BpmServiceMain.sendDelete("/tasks/active/" + tempString, true, new AsyncCallback<Void>() {
     				public void onFailure(Throwable arg0) {
     					SC.say("Error. Please ensure that you are connected to the Internet, that the server is currently online, and that the task was not already completed.");
     				}
     				public void onSuccess(Void arg0) {
-    					//TODO implement or clean-up comments
-    					//Refresh The page wont work like this due to object being destroyed need to clone
-    					//PageWidget b = PageManager.getInstance().getPage();
     					((Tasks) PageManager.getInstance().getPage()).updateTasks();
-    					//This works for refresh
-    					//PageWidget b = new Tasks();
-						//PageManager.getInstance().setPage(b);
     				}
     			});
             	
@@ -236,8 +253,39 @@ public class MyTasksListGrid extends ListGrid {
         
                                          
         layout.addMember(hLayout);  
-
-        return layout;  
+        
+        hlayoutUpper.addMember(layout);
+        Task t = (Task)record.getAttributeAsObject("task");
+		ArrayList<String> outcomes = t.getOutcomes();
+		if (outcomes.size() > 0 ){
+	        final DynamicForm form = new DynamicForm();  
+	        form.setWidth(300);  
+	          
+	        SelectItem item = new SelectItem();  
+	        item.setTitle("Decision");  
+	        
+	        item.setValueMap(outcomes.toArray(new String[outcomes.size()]));
+	        //item.setValueMap((String[]) outcomes.toArray());
+	        
+	        item.setWidth(250);  
+	        item.setPickListWidth(250);  
+	        ChangedHandler handler = new ChangedHandler(){
+	        	public void onChanged(ChangedEvent event){
+	        		outcomeString.set(0, "?outcome=" + BpmServiceMain.urlEncode((String)event.getValue()));
+	        	}
+	        };
+			item.addChangedHandler(handler);
+	        form.setItems(item);  
+	  
+	        hlayoutUpper.addMember(form);  
+	        hlayoutUpper.setAlign(Alignment.LEFT);
+	        
+		}
+        
+        
+        
+        
+        return hlayoutUpper;  
     } 
 
 	

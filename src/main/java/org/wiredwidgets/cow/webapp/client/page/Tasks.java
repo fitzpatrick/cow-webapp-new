@@ -131,7 +131,7 @@ public class Tasks extends PageWidget {
 				
 				
 				
-				taskgrid.setFields(complete, new ListGridField("taskname", "Name3"), new ListGridField("$#createTime", "Time"), new ListGridField("$#priority", "Priority"),
+				taskgrid.setFields(complete, new ListGridField("taskname", "Name"), new ListGridField("$#createTime", "Time"), new ListGridField("$#priority", "Priority"),
 						new ListGridField("$#assignee", "Assignee"), new ListGridField("$#activityName", "ActivityName"), processIntanceID);
 				sections[i].addItem(taskgrid);
 			} else {

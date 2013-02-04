@@ -21,7 +21,7 @@
     color: blue;
 	cursor: hand; cursor:pointer;
 	border-top: 1px solid #FAFAFA;
-	border-bottom: 1px solid #ffffff;
+	border-bottom: 1px solid #EDEDED;
 	background-color:#ffffff;
 	
 }
@@ -32,7 +32,7 @@
 	cursor: hand; cursor:pointer;
 	border-top: 1px solid #FAFAFA;
 	background-color:#fafafa;
-	border-bottom: 1px solid #ffffff;
+	border-bottom: 1px solid #EDEDED;
 }
 .linkLabelOver,
 .linkLabelOverDark {
@@ -160,4 +160,93 @@
     color:black;
     /*border-bottom:1px solid #a0a0a0; border-top:1px solid #a0a0a0;*/
     background-color:#D8D8D8;
+}
+
+
+
+.planned,
+.plannedDark {
+    font-family:Verdana,Bitstream Vera Sans,sans-serif; font-size:11px; text-overflow:ellipsis;
+    color:black;
+    /*border-bottom:1px solid #c0ffc0; border-top:1px solid #c0ffc0;*/
+    background-color:#9999ff;
+}
+.plannedOver,
+.plannedOverDark {
+    font-family:Verdana,Bitstream Vera Sans,sans-serif; font-size:11px; text-overflow:ellipsis;
+    color:black;
+    /*border-bottom:1px solid #c0c0c0; border-top:1px solid #c0c0c0;*/
+    background-color:#8080ff;
+}
+.plannedSelected,
+.plannedSelectedDark {
+    font-family:Verdana,Bitstream Vera Sans,sans-serif; font-size:11px; text-overflow:ellipsis;
+    color:black;
+    /*border-bottom:1px solid #c0ffff; border-top:1px solid #c0ffff;*/
+    background-color:#6666ff;
+}
+.plannedSelectedOver,
+.plannedSelectedOverDark {
+    font-family:Verdana,Bitstream Vera Sans,sans-serif; font-size:11px; text-overflow:ellipsis;
+    color:black;
+    /*border-bottom:1px solid #a0a0a0; border-top:1px solid #a0a0a0;*/
+    background-color:#4d4dff;
+}
+
+.contingent,
+.contingentDark {
+    font-family:Verdana,Bitstream Vera Sans,sans-serif; font-size:11px; text-overflow:ellipsis;
+    color:black;
+    /*border-bottom:1px solid #c0ffc0; border-top:1px solid #c0ffc0;*/
+    background-color:#E5E5E5;
+}
+.contingentOver,
+.contingentOverDark {
+    font-family:Verdana,Bitstream Vera Sans,sans-serif; font-size:11px; text-overflow:ellipsis;
+    color:black;
+    /*border-bottom:1px solid #c0c0c0; border-top:1px solid #c0c0c0;*/
+    background-color:#F2F2F2;
+}
+.contingentSelected,
+.contingentSelectedDark {
+    font-family:Verdana,Bitstream Vera Sans,sans-serif; font-size:11px; text-overflow:ellipsis;
+    color:black;
+    /*border-bottom:1px solid #c0ffff; border-top:1px solid #c0ffff;*/
+    background-color:#CCCCCC;
+}
+.contingentSelectedOver,
+.contingentSelectedOverDark {
+    font-family:Verdana,Bitstream Vera Sans,sans-serif; font-size:11px; text-overflow:ellipsis;
+    color:black;
+    /*border-bottom:1px solid #a0a0a0; border-top:1px solid #a0a0a0;*/
+    background-color:#D8D8D8;
+}
+
+.precluded,
+.precludedDark {
+    font-family:Verdana,Bitstream Vera Sans,sans-serif; font-size:11px; text-overflow:ellipsis;
+    color:black;
+    /*border-bottom:1px solid #c0ffc0; border-top:1px solid #c0ffc0;*/
+    background-color:#000000;
+}
+.precludedOver,
+.precludedOverDark {
+    font-family:Verdana,Bitstream Vera Sans,sans-serif; font-size:11px; text-overflow:ellipsis;
+    color:black;
+    /*border-bottom:1px solid #c0c0c0; border-top:1px solid #c0c0c0;*/
+    background-color:#000000;
+}
+.precludedSelected,
+.precludedSelectedDark {
+    font-family:Verdana,Bitstream Vera Sans,sans-serif; font-size:11px; text-overflow:ellipsis;
+    color:black;
+    /*border-bottom:1px solid #c0ffff; border-top:1px solid #c0ffff;*/
+    background-color:#000000;
+}
+.precludedSelectedOver,
+.precludedSelectedOverDark {
+    font-family:Verdana,Bitstream Vera Sans,sans-serif; font-size:11px; text-overflow:ellipsis;
+    color:black;
+    /*border-bottom:1px solid #a0a0a0; border-top:1px solid #a0a0a0;*/
+    background-color:#000000;
 }
